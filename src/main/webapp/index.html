@@ -1,0 +1,23 @@
+<!DOCTYPE html><!-- comment -->
+<html lang="en" ng-app="itemApp">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Items</title>
+
+  <!-- JQuery dependencies -->
+  <script src="/js/jquery.js"></script>
+  <!-- Angular dependencies -->
+  <script src="/js/angular.js"></script>
+
+  <script>
+    angular.module("itemApp", []);
+  </script>
+
+  <script src="/item-service.js"></script>
+
+</head>
+<body>
+    <h1>Items</h1>
+    <ng-include src="'/item-list.html'" ></ng-include>
+</body>
+</html>
