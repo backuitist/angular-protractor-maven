@@ -7,19 +7,29 @@ var path = require('path');
 var console = require('console');
 var webserver = require('gulp-webserver');
 
-gulp.task('default', function(done){
-
-    var stream = gulp.src(['src/main/webapp'])
-        .pipe(webserver({
-          port: 8123
-        }));
-
-    updateWebDriver(function() { runProtractorConfig(function () {
-        console.log("killing webserver...")
-        stream.emit('kill');
-        done();
-    }) });
+gulp.task('default', ['updateWebDriver'], function(done){
+    withWebServer(function(wsDone){
+        runProtractorConfig().on('end', function() {
+            wsDone();
+            done();
+        });
+    });
 });
+
+/*
+ * @param op a callback that takes a callback to be called when finished
+ */
+function withWebServer(op) {
+    var stream = gulp.src(['src/main/webapp'])
+               .pipe(webserver({
+                 port: 8123
+               }));
+
+    return op(function() {
+        console.log("Killing webserver...")
+        stream.emit('kill');
+    });
+}
 
 function getProtractorBinary(binaryName){
     var binPath = path.join(getProtractorDir(), binaryName)
@@ -27,20 +37,19 @@ function getProtractorBinary(binaryName){
     return binPath;
 }
 
-function updateWebDriver(callback) {
-    spawn(getProtractorBinary('webdriver-manager'), ['update'], {
+gulp.task('updateWebDriver', function() {
+    return spawn(getProtractorBinary('webdriver-manager'), ['update'], {
         stdio: 'inherit'
-    }).once('close', callback);
-}
+    });
+});
 
-function runProtractorConfig(done) {
-    gulp.src(["./src/test/**/*.js"])
+/*
+ * @return a stream
+ */
+function runProtractorConfig() {
+    return gulp.src(["./src/test/**/*.js"])
     	.pipe(protractor({
     		configFile: "./src/test/protractor.config.js"
 //    		,debug: true
-    	}))
-    	.on('error', function(e) {
-    	    throw e;
-        })
-        .on('end', done)
+    	}));
 }
