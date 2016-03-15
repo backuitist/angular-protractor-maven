@@ -8,10 +8,13 @@ var console = require('console');
 var webserver = require('gulp-webserver');
 
 gulp.task('default', ['updateWebDriver'], function(done){
-    withWebServer(function(wsDone){
-        runProtractorConfig().on('end', function() {
-            wsDone();
-            done();
+    withXvfb(function(killXvfb) {
+        withWebServer(function(killWS){
+            runProtractorConfig().on('end', function() {
+                killWS();
+                killXvfb();
+                done();
+            });
         });
     });
 });
@@ -31,6 +34,17 @@ function withWebServer(op) {
     });
 }
 
+function withXvfb(op) {
+    var child = spawn('Xvfb', [':99', '-ac', '-screen', '0', '1600x1200x24'], {
+            stdio: 'inherit'
+    });
+
+    return op(function() {
+        console.log("Killing Xvfb...")
+        child.kill();
+    });
+}
+
 function getProtractorBinary(binaryName){
     var binPath = path.join(getProtractorDir(), binaryName)
     console.log("binPath = " + binPath);
@@ -47,6 +61,7 @@ gulp.task('updateWebDriver', function() {
  * @return a stream
  */
 function runProtractorConfig() {
+    process.env.DISPLAY=':99';
     return gulp.src(["./src/test/**/*.js"])
     	.pipe(protractor({
     		configFile: "./src/test/protractor.config.js"
