@@ -1,0 +1,3 @@
+Simply
+
+     mvn clean install
