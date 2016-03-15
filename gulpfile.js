@@ -8,10 +8,10 @@ var console = require('console');
 var webserver = require('gulp-webserver');
 
 gulp.task('default', function(done){
+
     var stream = gulp.src(['src/main/webapp'])
         .pipe(webserver({
-          port: 8123,
-          open: true
+          port: 8123
         }));
 
     updateWebDriver(function() { runProtractorConfig(function () {
