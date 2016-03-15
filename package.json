@@ -1,5 +1,5 @@
 {
-  "name": "backuity-web-js-test",
+  "name": "angular-protractor-maven",
   "version": "0.0.1",
   "dependencies": {
     "gulp": "^3.9.0",
